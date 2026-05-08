@@ -258,7 +258,7 @@ const PromptForm: React.FC<PromptFormProps> = ({
         >
           <div className="absolute inset-0 bg-indigo-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
           <span className="relative z-10 group-hover:text-white flex items-center gap-4 transition-colors">
-            Production <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-500" />
+            {buttonLabel} <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-500" />
           </span>
         </button>
       </div>

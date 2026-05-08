@@ -20,11 +20,7 @@ import {
   MusicTrack
 } from './types';
 import { 
-  Settings, 
   Play, 
-  Cpu, 
-  Megaphone, 
-  Clapperboard, 
   RotateCcw,
   ExternalLink,
   Search,
