@@ -126,7 +126,7 @@ export const generateArt = async (prompt: string, aspectRatio: AspectRatio): Pro
     }
   }
 
-  throw new Error("Image generation via OpenRouter failed or model not supported in this way.");
+  throw new Error("Image generation via OpenRouter failed.");
 };
 
 // Agent 2: Marketer
@@ -140,7 +140,7 @@ export const marketAnalysis = async (
 ): Promise<{copy: string; sources: GroundingSource[]}> => {
   const systemPrompt = `PERSONA: ${config.marketerPersona}. Analyze trends and write high-converting copy.`;
   const userContent: any[] = [
-    { type: "text", text: `Concept: "${prompt}". Platform: ${platform}.` },
+    { type: "text", text: `Project Concept: "${prompt}". Target Platform: ${platform}. Analyze current digital marketing trends and write the final ad copy.` },
     { type: "image_url", image_url: { url: image.base64 } }
   ];
 
