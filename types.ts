@@ -1,9 +1,7 @@
-
 /**
- * @license
- * SPDX-License-Identifier: Apache-2.0
-*/
-import { Video } from '@google/genai';
+  * @license
+  * SPDX-License-Identifier: Apache-2.0
+ */
 
 export enum AppState {
   IDLE,
@@ -52,9 +50,10 @@ export interface GroundingSource {
 }
 
 export interface AgentConfig {
-  orchestratorPersona: string;
+  producerPersona: string;
   marketerPersona: string;
   directorPersona: string;
+  screenwriterPersona: string;
 }
 
 export interface ProductionData {
@@ -62,11 +61,13 @@ export interface ProductionData {
   enhancedPrompt: string;
   image?: ImageFile;
   marketingCopy?: string;
+  script?: string;
   videoUrl?: string;
-  videoObject?: Video;
+  videoObject?: any;
   targetPlatform: SocialPlatform;
   groundingSources?: GroundingSource[];
   selectedMusic?: MusicTrack;
+  recommendedMusicId?: string;
   musicMoodSuggestion?: string;
   productAssets?: ImageFile[];
   logo?: ImageFile;

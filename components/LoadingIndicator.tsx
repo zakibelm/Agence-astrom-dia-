@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { AppState } from '../types';
 
 interface Props {
@@ -39,18 +40,48 @@ const LoadingIndicator: React.FC<Props> = ({ state }) => {
   }, [messages]);
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="relative w-32 h-32 mb-10">
-        <div className="absolute inset-0 rounded-full border-[3px] border-indigo-500/10 scale-110"></div>
-        <div className="absolute inset-0 rounded-full border-t-[3px] border-indigo-500 animate-[spin_1.5s_linear_infinite]"></div>
-        <div className="absolute inset-4 rounded-full border-b-[3px] border-purple-500 animate-[spin_2s_linear_infinite_reverse]"></div>
-        <div className="absolute inset-0 flex items-center justify-center">
-           <div className="w-1.5 h-1.5 bg-white rounded-full animate-pulse shadow-[0_0_10px_white]"></div>
+    <div className="flex flex-col items-center justify-center p-12">
+      <div className="relative w-48 h-48 mb-16">
+        {/* Elite Spinner Layers */}
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-0 rounded-[3rem] border border-indigo-500/10"
+        />
+        <motion.div 
+          animate={{ rotate: -360 }}
+          transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-4 rounded-[2rem] border border-purple-500/10"
+        />
+        
+        {/* Active Rings */}
+        <div className="absolute inset-0 rounded-full border-t border-indigo-500 animate-[spin_2s_linear_infinite]" />
+        <div className="absolute inset-2 rounded-full border-b border-white/20 animate-[spin_3s_linear_infinite_reverse]" />
+        
+        {/* Central Core */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
+           <motion.div 
+             animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+             transition={{ duration: 2, repeat: Infinity }}
+             className="w-2 h-2 bg-white rounded-full shadow-[0_0_20px_white]"
+           />
+           <div className="text-[10px] font-black text-white/20 uppercase tracking-[0.5em] ml-2">Processing</div>
         </div>
       </div>
-      <p className="text-indigo-400 font-mono text-xs uppercase tracking-[0.5em] animate-pulse">
-        {messages[msgIdx]}
-      </p>
+
+      <div className="h-4 flex items-center justify-center">
+        <AnimatePresence mode="wait">
+          <motion.p 
+            key={messages[msgIdx]}
+            initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
+            className="text-indigo-400 font-display text-sm font-bold uppercase tracking-[0.4em] text-center"
+          >
+            {messages[msgIdx]}
+          </motion.p>
+        </AnimatePresence>
+      </div>
     </div>
   );
 };

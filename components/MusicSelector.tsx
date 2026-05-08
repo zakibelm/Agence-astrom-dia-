@@ -38,23 +38,21 @@ const MusicSelector: React.FC<Props> = ({ selected, onSelect, recommendationId }
   };
 
   return (
-    <div className="bg-black/20 rounded-3xl p-6 border border-gray-800/50">
-      <div className="flex items-center justify-between mb-4">
-        <h4 className="text-[10px] uppercase font-bold text-gray-500 tracking-widest flex items-center gap-2">
-          <Headphones size={12}/> Score & Soundtrack
+    <div className="h-full flex flex-col p-8 gap-6">
+      <div className="flex items-center justify-between">
+        <h4 className="text-[10px] uppercase font-black text-indigo-400 tracking-[0.4em] flex items-center gap-2">
+          <Headphones size={14}/> Sound Design
         </h4>
-        <div className="flex gap-2">
-           <button 
-             type="button"
-             onClick={() => onSelect(null)}
-             className={`px-3 py-1 rounded-full text-[9px] font-black uppercase transition-all flex items-center gap-1 ${!selected ? 'bg-indigo-600 text-white' : 'bg-gray-900 text-gray-500 border border-gray-800'}`}
-           >
-             <Sparkles size={10} /> Choix du Réalisateur
-           </button>
-        </div>
+        <button 
+          type="button"
+          onClick={() => onSelect(null)}
+          className={`px-3 py-1.5 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all flex items-center gap-2 border ${!selected ? 'bg-indigo-600 text-white border-indigo-500 shadow-lg shadow-indigo-600/20' : 'bg-white/5 text-gray-500 border-white/5'}`}
+        >
+          <Sparkles size={10} /> Auto-Score
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         {PRESET_TRACKS.map((track) => {
           const isRecommended = track.id === recommendationId;
           const isSelected = selected?.id === track.id;
@@ -64,22 +62,24 @@ const MusicSelector: React.FC<Props> = ({ selected, onSelect, recommendationId }
               key={track.id}
               type="button"
               onClick={() => onSelect(track)}
-              className={`relative flex flex-col items-start p-3 rounded-2xl border text-left transition-all ${
+              className={`relative flex flex-col items-start p-4 rounded-xl border text-left transition-all group ${
                 isSelected
-                  ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-[0_0_15px_rgba(99,102,241,0.1)]'
-                  : 'bg-black/40 border-gray-800 text-gray-500 hover:border-gray-700'
+                  ? 'bg-indigo-600 text-white border-indigo-500 shadow-xl z-10'
+                  : isRecommended 
+                    ? 'bg-indigo-950/30 border-indigo-500/50 text-indigo-100 hover:border-indigo-400 shadow-[0_0_15px_rgba(99,102,241,0.15)]'
+                    : 'bg-black/40 border-white/5 text-gray-500 hover:border-white/10 hover:bg-white/5'
               }`}
             >
-              <div className="flex items-center justify-between w-full mb-1">
-                <Music size={14} className={isSelected ? 'text-indigo-400' : 'text-gray-700'} />
-                {isSelected && <Check size={14} className="text-indigo-400" />}
+              <div className="flex items-center justify-between w-full mb-2">
+                <Music size={14} className={isSelected ? 'text-white' : isRecommended ? 'text-indigo-400' : 'text-gray-700 group-hover:text-gray-400'} />
+                {isSelected ? <Check size={14} className="text-white" /> : isRecommended && <Sparkles size={12} className="text-indigo-400 animate-pulse" />}
               </div>
-              <p className="text-[11px] font-bold truncate w-full">{track.name}</p>
-              <p className="text-[9px] opacity-50 truncate w-full">{track.genre}</p>
+              <p className={`text-[10px] font-black truncate w-full uppercase tracking-tight ${isRecommended && !isSelected ? 'text-indigo-200' : ''}`}>{track.name}</p>
+              <p className="text-[8px] opacity-60 truncate w-full uppercase font-bold">{track.genre}</p>
               
-              {isRecommended && !isSelected && (
-                <div className="absolute -top-1 -right-1 bg-amber-500 text-black rounded-full p-0.5 shadow-lg">
-                  <Sparkles size={10} fill="currentColor" />
+              {isRecommended && (
+                <div className="absolute -top-1 -right-1 bg-indigo-500 text-[7px] font-black uppercase px-2 py-0.5 rounded-full shadow-lg text-white border border-indigo-400/50 flex items-center gap-1 z-20">
+                  <Sparkles size={8} /> AI Pick
                 </div>
               )}
             </button>
@@ -89,14 +89,14 @@ const MusicSelector: React.FC<Props> = ({ selected, onSelect, recommendationId }
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
-          className={`flex flex-col items-center justify-center p-3 rounded-2xl border border-dashed transition-all ${
+          className={`flex flex-col items-center justify-center p-4 rounded-xl border border-dashed transition-all ${
             selected?.type === 'upload'
               ? 'bg-indigo-600/10 border-indigo-500 text-white'
-              : 'bg-black/20 border-gray-800 text-gray-500 hover:border-gray-600 hover:bg-black/40'
+              : 'bg-white/5 border-white/5 text-gray-600 hover:border-indigo-500/30 hover:bg-indigo-500/5'
           }`}
         >
           <Upload size={16} className="mb-1" />
-          <p className="text-[10px] font-bold">Upload</p>
+          <p className="text-[10px] font-black uppercase tracking-tighter">Upload</p>
           <input
             type="file"
             ref={fileInputRef}
@@ -108,9 +108,12 @@ const MusicSelector: React.FC<Props> = ({ selected, onSelect, recommendationId }
       </div>
 
       {!selected && (
-        <div className="mt-4 p-3 bg-indigo-500/5 rounded-2xl border border-indigo-500/10">
-          <p className="text-[9px] text-indigo-300 italic flex items-center gap-2">
-            <Sparkles size={10} /> Le réalisateur IA sélectionnera la musique après analyse de votre scénario.
+        <div className="mt-auto pt-4 bg-gradient-to-t from-black/20 to-transparent">
+          <p className="text-[9px] text-gray-400 font-bold uppercase tracking-[0.2em] flex items-center gap-2">
+             <Sparkles size={10} className="text-indigo-400 animate-pulse" /> 
+             {recommendationId 
+               ? `Recommandation IA : ${PRESET_TRACKS.find(t => t.id === recommendationId)?.name || 'Détectée'}`
+               : 'Analyse sonore adaptative active'}
           </p>
         </div>
       )}

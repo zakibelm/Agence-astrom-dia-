@@ -4,6 +4,7 @@
  * SPDX-License-Identifier: Apache-2.0
 */
 import React, { useState } from 'react';
+import { motion } from 'motion/react';
 import { AspectRatio, SocialPlatform, MusicTrack, ImageFile } from '../types';
 import MusicSelector from './MusicSelector';
 import { 
@@ -32,12 +33,14 @@ interface PromptFormProps {
     productImages: ImageFile[],
     logo: ImageFile | null
   ) => void;
+  recommendationId?: string;
   placeholder?: string;
   buttonLabel?: string;
 }
 
 const PromptForm: React.FC<PromptFormProps> = ({ 
   onSubmit, 
+  recommendationId,
   placeholder = "Décrivez votre vision publicitaire ou le produit à promouvoir...", 
   buttonLabel = "Lancer la Production"
 }) => {
@@ -107,132 +110,160 @@ const PromptForm: React.FC<PromptFormProps> = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="w-full max-w-4xl bg-[#111] border border-gray-800 rounded-[2.5rem] p-4 shadow-2xl focus-within:border-indigo-500/30 transition-all overflow-hidden mb-12">
-      <div className="flex flex-col gap-4">
-        <textarea
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          placeholder={placeholder}
-          className="w-full bg-transparent p-6 text-xl text-white placeholder-gray-700 focus:outline-none resize-none min-h-[120px]"
-        />
+    <motion.form 
+      onSubmit={handleSubmit}
+      className="w-full max-w-5xl bg-[#0a0a0a]/80 backdrop-blur-3xl border border-white/10 rounded-[3rem] p-2 shadow-[0_32px_64px_-16px_rgba(0,0,0,0.6)] focus-within:border-indigo-500/40 transition-all overflow-hidden mb-12"
+    >
+      <div className="flex flex-col">
+        <div className="p-8 pb-0">
+          <textarea
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+            placeholder={placeholder}
+            className="w-full bg-transparent text-3xl text-white placeholder-gray-700 font-bold focus:outline-none resize-none min-h-[140px] leading-tight font-display"
+          />
+        </div>
         
-        {/* Brand Assets Section */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 pb-6">
-          <div className="flex flex-col gap-4">
+        {/* Brand Assets Section - Bento Style */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-1 p-1">
+          <div className="lg:col-span-8 bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 flex flex-col gap-6">
              <div className="flex items-center justify-between">
-                <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold flex items-center gap-2">
-                  <ImagePlus size={12} /> Images du Produit / Service
+                <p className="text-[10px] uppercase tracking-[0.4em] text-indigo-400 font-black flex items-center gap-3">
+                  <ImagePlus size={16} /> Assets de Produit
                 </p>
-                <span className="text-[8px] text-gray-600 font-mono">MAX 4</span>
+                <span className="text-[9px] text-gray-600 font-black tracking-widest bg-white/5 px-2 py-1 rounded">STOCK: {productImages.length}/4</span>
              </div>
-             <div className="flex flex-wrap gap-3">
+             
+             <div className="grid grid-cols-4 gap-4 min-h-[100px]">
                 {productImages.map((img, i) => (
-                  <div key={i} className="relative group w-16 h-16 rounded-xl overflow-hidden border border-gray-800">
-                    <img src={img.base64} className="w-full h-full object-cover" />
+                  <motion.div 
+                    key={i}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="relative group aspect-square rounded-2xl overflow-hidden border border-white/10 bg-black shadow-2xl"
+                  >
+                    <img src={img.base64} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" />
+                    <div className="absolute inset-0 bg-indigo-600/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <button 
                       type="button"
                       onClick={() => removeProductImage(i)}
-                      className="absolute top-1 right-1 p-0.5 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                      className="absolute top-2 right-2 p-1.5 bg-black/80 rounded-full text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
                     >
                       <X size={10} />
                     </button>
-                  </div>
+                  </motion.div>
                 ))}
                 {productImages.length < 4 && (
-                  <label className="w-16 h-16 rounded-xl border border-dashed border-gray-800 flex items-center justify-center cursor-pointer hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all group">
-                    <Upload size={14} className="text-gray-600 group-hover:text-indigo-400" />
+                  <label className="aspect-square rounded-2xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all group overflow-hidden relative">
+                    <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Upload size={24} className="text-gray-600 group-hover:text-indigo-400 mb-2 transition-colors" />
+                    <span className="text-[9px] text-gray-500 uppercase font-black tracking-tighter group-hover:text-white">Importer</span>
                     <input type="file" className="hidden" accept="image/*" multiple onChange={handleProductUpload} />
                   </label>
                 )}
              </div>
           </div>
 
-          <div className="flex flex-col gap-4">
-            <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold flex items-center gap-2">
-               <Sparkles size={12}/> Logo de la Marque
+          <div className="lg:col-span-4 bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 flex flex-col gap-6">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-indigo-400 font-black flex items-center gap-3">
+               <Sparkles size={16} /> Identité Visuelle
             </p>
-            <div className="flex items-center gap-4">
+            <div className="flex flex-col items-center justify-center flex-grow gap-6">
               {logo ? (
-                <div className="relative group w-16 h-16 rounded-xl overflow-hidden border border-indigo-500/30 bg-indigo-500/5 p-2">
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="relative group w-32 h-32 rounded-3xl overflow-hidden border border-indigo-500/30 bg-indigo-500/5 p-6 shadow-2xl"
+                >
                   <img src={logo.base64} className="w-full h-full object-contain" />
                   <button 
                     type="button"
                     onClick={() => setLogo(null)}
-                    className="absolute top-1 right-1 p-0.5 bg-black/60 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute top-3 right-3 p-2 bg-black/80 rounded-full text-white hover:bg-red-500 transition-colors opacity-0 group-hover:opacity-100"
                   >
-                    <X size={10} />
+                    <X size={12} />
                   </button>
-                </div>
+                </motion.div>
               ) : (
-                <label className="w-16 h-16 rounded-xl border border-dashed border-gray-800 flex items-center justify-center cursor-pointer hover:border-indigo-500/50 hover:bg-indigo-500/5 transition-all group">
-                  <Upload size={14} className="text-gray-600 group-hover:text-indigo-400" />
+                <label className="w-32 h-32 rounded-3xl border-2 border-dashed border-white/5 flex flex-col items-center justify-center cursor-pointer hover:border-indigo-500/40 hover:bg-indigo-500/5 transition-all group relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <Upload size={24} className="text-gray-600 group-hover:text-indigo-400 mb-2" />
+                  <span className="text-[9px] text-gray-500 uppercase font-black tracking-tighter group-hover:text-white">Logo PNG</span>
                   <input type="file" className="hidden" accept="image/*" onChange={handleLogoUpload} />
                 </label>
               )}
-              <div className="flex flex-col gap-1">
-                <p className="text-[10px] text-gray-400 font-medium">Fichier Logo</p>
-                <p className="text-[8px] text-gray-600 uppercase">PNG avec fond transparent conseillé</p>
+              <div className="text-center">
+                <p className="text-[10px] text-gray-500 uppercase font-bold tracking-widest leading-relaxed">Format transparent<br/>recommandé</p>
               </div>
             </div>
           </div>
         </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 px-6 pb-6">
-            <div className="flex flex-col gap-4">
-              <p className="text-[10px] uppercase tracking-[0.2em] text-gray-500 font-bold">Ciblage Plateforme</p>
-              <div className="flex flex-wrap gap-2">
-                {platforms.map((p) => (
-                  <button
-                    key={p.id}
-                    type="button"
-                    onClick={() => handlePlatformSelect(p)}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-full border text-[11px] font-bold transition-all ${
-                      platform === p.id 
-                      ? 'bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]' 
-                      : `bg-black/40 border-gray-800 text-gray-500 ${p.color}`
-                    }`}
-                  >
-                    <p.icon size={12} />
-                    {p.id}
-                  </button>
-                ))}
-              </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-1 p-1">
+          <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 flex flex-col gap-6">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-indigo-400 font-black">Ciblage Plateforme</p>
+            <div className="flex flex-wrap gap-2">
+              {platforms.map((p) => (
+                <button
+                  key={p.id}
+                  type="button"
+                  onClick={() => handlePlatformSelect(p)}
+                  className={`flex items-center gap-3 px-6 py-3 rounded-2xl border text-[10px] font-black tracking-[0.2em] transition-all uppercase ${
+                    platform === p.id 
+                    ? 'bg-indigo-600 text-white border-indigo-500 shadow-2xl shadow-indigo-600/40' 
+                    : `bg-black/60 border-white/5 text-gray-500 hover:text-white hover:border-white/20 ${p.color}`
+                  }`}
+                >
+                  <p.icon size={14} />
+                  {p.id}
+                </button>
+              ))}
             </div>
-
-            <MusicSelector selected={selectedMusic} onSelect={setSelectedMusic} />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between border-t border-gray-800/50 pt-4 mt-2 px-6 pb-2">
-          <div className="flex items-center gap-4">
-             <button 
-                type="button"
-                onClick={toggleAspectRatio}
-                className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-lg border border-indigo-500/20 hover:border-indigo-500/50 transition-colors group"
-             >
-               {aspectRatio === AspectRatio.LANDSCAPE ? (
-                 <Monitor size={14} className="text-indigo-400 group-hover:scale-110 transition-transform"/>
-               ) : (
-                 <Smartphone size={14} className="text-indigo-400 group-hover:scale-110 transition-transform"/>
-               )}
-               <span className="text-[10px] font-mono text-gray-400 uppercase">Format {aspectRatio}</span>
-             </button>
-             <div className="hidden md:flex flex-col">
-                <p className="text-[9px] text-gray-400 font-bold uppercase tracking-wider">{platform}</p>
-                <p className="text-[8px] text-gray-600 italic">Prêt pour déploiement</p>
-             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={!prompt.trim()}
-            className="flex items-center gap-3 px-8 py-3 bg-indigo-600 text-white rounded-full font-black hover:bg-indigo-500 transition-all disabled:opacity-20 disabled:grayscale group shadow-lg shadow-indigo-600/20 uppercase tracking-wider text-sm"
-          >
-            Lancer la production
-            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+          <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] overflow-hidden">
+            <MusicSelector 
+              selected={selectedMusic} 
+              onSelect={setSelectedMusic} 
+              recommendationId={recommendationId}
+            />
+          </div>
         </div>
-      </form>
-    );
+      </div>
+
+      <div className="flex items-center justify-between p-8 border-t border-white/5 bg-black/20">
+        <div className="flex items-center gap-6">
+           <button 
+              type="button"
+              onClick={toggleAspectRatio}
+              className="flex items-center gap-3 bg-white/5 hover:bg-white/10 px-4 py-2 rounded-xl border border-white/5 hover:border-white/10 transition-all group"
+           >
+             {aspectRatio === AspectRatio.LANDSCAPE ? (
+               <Monitor size={16} className="text-indigo-400 transition-transform group-hover:scale-110"/>
+             ) : (
+               <Smartphone size={16} className="text-indigo-400 transition-transform group-hover:scale-110"/>
+             )}
+             <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">FORMAT {aspectRatio}</span>
+           </button>
+           <div className="hidden md:flex flex-col gap-0.5">
+              <p className="text-[9px] text-indigo-400 font-black uppercase tracking-[0.3em]">{platform}</p>
+              <p className="text-[9px] text-gray-600 font-bold">OPTIMISATION ALGORITHMIQUE ACTIVE</p>
+           </div>
+        </div>
+
+        <button
+          type="submit"
+          disabled={!prompt.trim()}
+          className="relative group overflow-hidden px-10 py-4 bg-white text-black rounded-2xl font-black uppercase tracking-[0.3em] text-sm hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-30 disabled:grayscale shadow-2xl shadow-white/5"
+        >
+          <div className="absolute inset-0 bg-indigo-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+          <span className="relative z-10 group-hover:text-white flex items-center gap-4 transition-colors">
+            Production <ArrowRight size={20} className="group-hover:translate-x-2 transition-transform duration-500" />
+          </span>
+        </button>
+      </div>
+    </motion.form>
+  );
 };
 
 export default PromptForm;
