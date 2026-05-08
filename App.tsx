@@ -178,7 +178,7 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
       setAppState(AppState.IMAGING);
       const image = await generateArt(enhancedPrompt, ar, config);
       setProd(prev => ({ ...prev, image }));
-      setAppState(AppState.MARKETING);
+      setAppState(AppState.IMAGE_REVIEW);
       
     } catch (e: any) {
       setErrorMessage(e.message);
@@ -328,7 +328,7 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
                 </div>
               )}
 
-            {(appState >= AppState.ORCHESTRATING && appState <= AppState.VIDEO_GEN) && (
+            {(appState >= AppState.ORCHESTRATING && appState <= AppState.VIDEO_GEN && appState !== AppState.IMAGE_REVIEW) && (
               <div className="flex-grow flex flex-col items-center justify-center gap-12">
                 <LoadingIndicator state={appState} />
                 <div className="flex items-center gap-8 text-xs font-mono tracking-widest uppercase opacity-50">
@@ -337,11 +337,11 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
               </div>
             )}
 
-            {appState === AppState.MARKETING && prod.image && (
+            {appState === AppState.IMAGE_REVIEW && prod.image && (
               <div className="flex-grow grid grid-cols-1 lg:grid-cols-2 gap-12 items-start py-8 animate-in zoom-in-95 duration-500">
                 <div className="flex flex-col gap-6 lg:sticky lg:top-8">
-                  <div className="relative group rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl bg-black">
-                    <img src={URL.createObjectURL(prod.image.file)} className="w-full object-contain" />
+                  <div className="relative group rounded-[2.5rem] overflow-hidden border border-white/10 shadow-2xl bg-black aspect-square flex items-center justify-center">
+                    <img src={prod.image.base64} className="max-w-full max-h-full object-contain" />
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-8">
                        <p className="text-[10px] font-black tracking-[0.2em] text-white/50 uppercase">Génération Visuelle Director Pro</p>
                     </div>
@@ -371,21 +371,21 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
                 <div className="flex flex-col gap-8">
                   <div className="bg-[#0a0a0a] p-10 rounded-[2.5rem] border border-gray-800 shadow-2xl">
                     <div className="flex items-center gap-3 text-indigo-400 text-[10px] font-black uppercase tracking-[0.3em] mb-6">
-                       <Search size={16} className="animate-pulse"/> Analyse Agent Marketer
+                       <Sparkles size={16} className="animate-pulse"/> Validation Studio AI
                     </div>
                     <h3 className="text-3xl font-black text-white leading-[1.1] mb-8 tracking-tighter uppercase">
-                      Stratégie de Campagne <span className="text-indigo-400 underline decoration-indigo-500/30 underline-offset-8 decoration-4">{prod.targetPlatform}</span>
+                      Vôtre Vision <span className="text-indigo-400 underline decoration-indigo-500/30 underline-offset-8 decoration-4">Cinématographique</span>
                     </h3>
                     
                     <p className="text-xl text-gray-300 leading-relaxed font-medium mb-10 border-l-4 border-indigo-500 pl-6">
-                      Le visuel principal a été validé par le réalisateur. L'agent Marketing finalise maintenant le script de vente pour maximiser votre conversion.
+                      L'artiste a généré votre visuel maître. Est-ce que cette direction esthétique correspond à vos attentes pour la production finale ?
                     </p>
                     
                     {prod.selectedMusic && (
                       <div className="mb-10 flex flex-col gap-4 bg-indigo-600/5 p-6 rounded-2xl border border-indigo-500/20">
                         <div className="flex items-center gap-2 text-indigo-400">
                            <Sparkles size={16} />
-                           <p className="text-[11px] uppercase font-black tracking-widest">Intention du Producteur</p>
+                           <p className="text-[11px] uppercase font-black tracking-widest">Aura Sonore Détectée</p>
                         </div>
                         <p className="text-sm text-white font-bold italic">"{prod.musicMoodSuggestion}"</p>
                         <div className="flex items-center gap-3 mt-2 border-t border-white/5 pt-4">
@@ -397,21 +397,29 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
                       </div>
                     )}
                     
-                    <button 
-                      onClick={approveImage}
-                      className="w-full py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-sm rounded-2xl hover:bg-indigo-400 hover:text-white transition-all flex items-center justify-center gap-4 shadow-xl hover:shadow-indigo-500/20 active:scale-[0.98]"
-                    >
-                      DÉPLOYER LA PRODUCTION <Play size={20} fill="currentColor" />
-                    </button>
+                    <div className="flex gap-4">
+                      <button 
+                        onClick={approveImage}
+                        className="flex-grow py-6 bg-white text-black font-black uppercase tracking-[0.2em] text-sm rounded-2xl hover:bg-indigo-500 hover:text-white transition-all flex items-center justify-center gap-4 shadow-xl active:scale-[0.98]"
+                      >
+                        LANCER LA PRODUCTION <ArrowRight size={20} />
+                      </button>
+                      <button 
+                        onClick={() => setAppState(AppState.IDLE)}
+                        className="px-6 py-6 border border-white/10 rounded-2xl hover:bg-white/5 transition-all text-gray-400 hover:text-white"
+                      >
+                        <RotateCcw size={20} />
+                      </button>
+                    </div>
                   </div>
 
                   <div className="bg-indigo-600/10 border border-indigo-500/20 p-8 rounded-[2rem] flex gap-6">
                     <div className="w-12 h-12 bg-indigo-500/20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Sparkles size={24} className="text-indigo-400" />
+                      <Bot size={24} className="text-indigo-400" />
                     </div>
                     <div className="flex flex-col gap-2">
                        <h4 className="text-white text-sm font-bold uppercase tracking-wider">Astromédia Intelligence</h4>
-                       <p className="text-gray-400 text-xs leading-relaxed font-medium">Contenu optimisé pour une audience {prod.targetPlatform}. Le script sera généré en tenant compte des assets de marque fournis.</p>
+                       <p className="text-gray-400 text-xs leading-relaxed font-medium">Une fois approuvé, nos agents Marketer et Scénariste forgeront la stratégie de conversion finale.</p>
                     </div>
                   </div>
                 </div>

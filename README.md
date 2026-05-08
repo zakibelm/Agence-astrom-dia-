@@ -1,20 +1,31 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Agence Astromédia ELITE
 
-# Run and deploy your AI Studio app
+Studio de production publicitaire premium piloté par une orchestration multi-agents IA.
 
-This contains everything you need to run your app locally.
+## 🚀 Configuration
 
-View your app in AI Studio: https://ai.studio/apps/ad0550e3-60cb-4fbf-9852-e6f75011d5f9
+1. **Clé API OpenRouter** : Cette application utilise OpenRouter pour tous ses agents (texte et images).
+2. Ajoutez votre clé dans les variables d'environnement (Paramètres > Secrets) :
+   ```env
+   OPENROUTER_API_KEY=votre_cle_ici
+   ```
 
-## Run Locally
+## 🧠 Architecture Multi-Agents
 
-**Prerequisites:**  Node.js
+- **L'Orchestrateur** : Analyse le brief, définit la stratégie et choisit l'univers musical.
+- **Le Scénariste** : Rédige des scripts à haut impact émotionnel.
+- **Le Marketer** : Optimise pour la conversion et les tendances sociales.
+- **L'Artiste** : Génère le visuel maître de la campagne (DALL-E 3, Imagen 3, etc.).
+- **Le Réalisateur** : Dirige la cohérence visuelle et suggère les mouvements caméra.
 
+## 🛠️ Développement
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+L'application est un projet full-stack avec un serveur Express servant de proxy API sécurisé.
+
+- **Démarrage** : `npm run dev`
+- **Build** : `npm run build`
+- **Serveur de Production** : `npm start` (après build)
+
+## ⚠️ Notes de Simulation
+
+Pour cette version MVP, la génération vidéo finale simule le rendu haute fidélité en se basant sur le Master Key Visual généré et les instructions de mouvement du Réalisateur.
