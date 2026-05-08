@@ -25,7 +25,7 @@ export const orchestrate = async (
   productImages?: ImageFile[],
   logo?: ImageFile
 ): Promise<{enhancedPrompt: string, musicMood: string, recommendedGenre: string}> => {
-  const systemPrompt = `PERSONA: ${config.producerPersona}. 
+  const systemPrompt = `PERSONA: ${config.producer.persona}. 
   TARGET PLATFORM: ${platform}.
   Task: Acting as the Executive Producer, analyze the project request.
   Return a JSON object with keys: "enhancedPrompt", "musicMood", "recommendedGenre" (cinematic, urban, lofi, energetic).`;
@@ -44,7 +44,7 @@ export const orchestrate = async (
 
   try {
     const text = await callOpenRouter(
-      "google/gemini-2.0-pro-exp-02-05:free", 
+      config.producer.model || "google/gemini-2.0-pro-exp-02-05:free", 
       [
         { role: "system", content: systemPrompt },
         { role: "user", content: userContent }
@@ -65,7 +65,7 @@ export const writeScript = async (
   config: AgentConfig,
   image?: ImageFile
 ): Promise<string> => {
-  const systemPrompt = `PERSONA: ${config.screenwriterPersona}. You are a top-tier Hollywood screenwriter specializing in short-form advertising.`;
+  const systemPrompt = `PERSONA: ${config.screenwriter.persona}. You are a top-tier Hollywood screenwriter specializing in short-form advertising.`;
   const userContent: any[] = [
     { type: "text", text: `Task: Write a cinematic ad script Based on the initial concept: "${prompt}" and the marketing strategy: "${marketingAnalysis}". Include visual cues.` }
   ];
@@ -75,7 +75,7 @@ export const writeScript = async (
   }
 
   return await callOpenRouter(
-    "anthropic/claude-3.5-sonnet", 
+    config.screenwriter.model || "anthropic/claude-3.5-sonnet", 
     [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent }
@@ -84,27 +84,16 @@ export const writeScript = async (
 };
 
 // Agent Image: Using OpenRouter (DALL-E 3 or similar)
-export const generateArt = async (prompt: string, aspectRatio: AspectRatio): Promise<ImageFile> => {
-  // Since OpenRouter's /chat/completions doesn't return direct images in the same way, 
-  // we use a specialized model if available or fallback to a vision model that describes how to generate it.
-  // TEMPORARY: Using a highly capable model to "generate" the high-quality concept for now.
-  // In a real OpenRouter setup for images, we'd target a specific image model endpoint if OpenRouter provides it 
-  // or use the provider that supports images in chat.
-  
-  // NOTE: For true image generation, OpenRouter supports 'openai/dall-e-3' or 'google/imagen-3'.
-  // However, OpenRouter's image API is sometimes different. 
-  // For this demo, I will try to use a model that supports image generation if possible, 
-  // or stick to the logic that the user wants OpenRouter.
-  
-  // Let's assume the user wants 'openai/dall-e-3' or similar. 
-  // We'll simulate this by fetching from their API if it supports it.
-  
+export const generateArt = async (prompt: string, aspectRatio: AspectRatio, config: AgentConfig): Promise<ImageFile> => {
   const response = await fetch("/api/openrouter", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ 
-      model: "openai/dall-e-3", 
-      messages: [{ role: "user", content: `Generate a high-end cinematic key visual for this concept: ${prompt}. Aspect ratio: ${aspectRatio}` }]
+      model: config.artist.model || "openai/dall-e-3", 
+      messages: [
+        { role: "system", content: config.artist.persona },
+        { role: "user", content: `Generate a high-end cinematic key visual for this concept: ${prompt}. Aspect ratio: ${aspectRatio}` }
+      ]
     })
   });
   
@@ -138,7 +127,7 @@ export const marketAnalysis = async (
   productImages?: ImageFile[],
   logo?: ImageFile
 ): Promise<{copy: string; sources: GroundingSource[]}> => {
-  const systemPrompt = `PERSONA: ${config.marketerPersona}. Analyze trends and write high-converting copy.`;
+  const systemPrompt = `PERSONA: ${config.marketer.persona}. Analyze trends and write high-converting copy.`;
   const userContent: any[] = [
     { type: "text", text: `Project Concept: "${prompt}". Target Platform: ${platform}. Analyze current digital marketing trends and write the final ad copy.` },
     { type: "image_url", image_url: { url: image.base64 } }
@@ -149,7 +138,7 @@ export const marketAnalysis = async (
   }
 
   const copy = await callOpenRouter(
-    "google/gemini-2.0-pro-exp-02-05:free", 
+    config.marketer.model || "google/gemini-2.0-pro-exp-02-05:free", 
     [
       { role: "system", content: systemPrompt },
       { role: "user", content: userContent }
@@ -168,7 +157,7 @@ export const generateCampaignVideo = async (
   config: AgentConfig,
   musicMood: string
 ): Promise<{url: string; video: any}> => {
-  const systemPrompt = `PERSONA: ${config.directorPersona}. You are responsible for directing the final video production, ensuring perfect synergy between the narrative, the visuals, and the music mood.`;
+  const systemPrompt = `PERSONA: ${config.director.persona}. You are responsible for directing the final video production, ensuring perfect synergy between the narrative, the visuals, and the music mood.`;
   
   const userPrompt = `Task: Create a detailed motion and visual direction prompt for video generation.
   Base the visual style on this script/copy: "${marketingCopy}".
@@ -181,7 +170,7 @@ export const generateCampaignVideo = async (
   The output should be a single paragraph of descriptive visual direction.`;
 
   const text = await callOpenRouter(
-    "google/gemini-2.0-pro-exp-02-05:free", 
+    config.director.model || "google/gemini-2.0-pro-exp-02-05:free", 
     [
       { role: "system", content: systemPrompt },
       { role: "user", content: userPrompt }

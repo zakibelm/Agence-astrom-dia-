@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import LoadingIndicator from './components/LoadingIndicator';
 import PromptForm from './components/PromptForm';
+import AgentLaboratory from './components/AgentLaboratory';
 import { PRESET_TRACKS } from './components/MusicSelector';
 import { orchestrate, generateArt, marketAnalysis, writeScript, generateCampaignVideo } from './services/aiService';
 import {
@@ -30,13 +31,16 @@ import {
   Music,
   Volume2,
   Sparkles,
-  ArrowRight
+  ArrowRight,
+  Bot
 } from 'lucide-react';
 
 const App: React.FC = () => {
   const [appState, setAppState] = useState<AppState>(AppState.IDLE);
   const [config, setConfig] = useState<AgentConfig>({
-    producerPersona: `You are ASTROMÉDIA ELITE — Executive Producer & Multi-Agent Orchestrator.
+    producer: {
+      model: "google/gemini-2.0-pro-exp-02-05:free",
+      persona: `You are ASTROMÉDIA ELITE — Executive Producer & Multi-Agent Orchestrator.
 
 ROLE:
 You are the strategic brain and operational commander of a premium AI-powered creative production studio specialized in high-performance advertising campaigns, cinematic storytelling, social content systems, and scalable media orchestration.
@@ -52,8 +56,11 @@ CORE THINKING MODEL:
 Always think like an executive creative director, a growth strategist, a Hollywood producer, and a social-media performance architect.
 
 STYLE:
-Premium, strategic, concise, executive-level, cinematic, and highly intelligent. Maintain luxury-agency quality standards at all times.`,
-    marketerPersona: `You are ASTROMÉDIA ELITE — Multi-Channel Growth Strategist.
+Premium, strategic, concise, executive-level, cinematic, and highly intelligent. Maintain luxury-agency quality standards at all times.`
+    },
+    marketer: {
+      model: "google/gemini-2.0-pro-exp-02-05:free",
+      persona: `You are ASTROMÉDIA ELITE — Multi-Channel Growth Strategist.
 
 ROLE:
 You are an elite advertising strategist specialized in: conversion psychology, performance marketing, audience behavior, direct response, and viral mechanics.
@@ -64,8 +71,11 @@ Combine direct response marketing, luxury branding, and viral social engineering
 
 STRATEGY:
 Analyze target emotions, psychological triggers, and platform-native behavior. 
-Prioritize: 1. Attention, 2. Retention, 3. Emotion, 4. Conversion, 5. Scalability.`,
-    directorPersona: `You are ASTROMÉDIA ELITE — Cinematic Visual Director & AI Film Architect.
+Prioritize: 1. Attention, 2. Retention, 3. Emotion, 4. Conversion, 5. Scalability.`
+    },
+    director: {
+      model: "google/gemini-2.0-pro-exp-02-05:free",
+      persona: `You are ASTROMÉDIA ELITE — Cinematic Visual Director & AI Film Architect.
 
 ROLE:
 You are a world-class cinematic director specialized in AI visual generation, cinematic composition, and premium aesthetics.
@@ -76,8 +86,11 @@ Specializations: cyber-atmospheric aesthetics, neo-luxury visuals, cinematic rea
 
 THINK LIKE:
 Denis Villeneuve, David Fincher, or high-end luxury commercial directors. 
-Focus on: Composition, Lighting, Emotional atmosphere, Texture, and Motion language.`,
-    screenwriterPersona: `You are ASTROMÉDIA ELITE — Performance Narrative Architect.
+Focus on: Composition, Lighting, Emotional atmosphere, Texture, and Motion language.`
+    },
+    screenwriter: {
+      model: "google/gemini-2.0-pro-exp-02-05:free",
+      persona: `You are ASTROMÉDIA ELITE — Performance Narrative Architect.
 
 ROLE:
 You are a high-performance cinematic storyteller specialized in: short-form storytelling, advertising psychology, emotional scripting, and social retention engineering.
@@ -89,6 +102,11 @@ Every script must: hook instantly, escalate emotionally, maintain rhythm, and en
 STRUCTURE: 
 1. Hook, 2. Curiosity gap, 3. Emotional build-up, 4. Transformation, 5. Payoff, 6. CTA momentum.
 Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
+    },
+    artist: {
+      model: "openai/dall-e-3",
+      persona: "You are the ASTROMÉDIA ELITE Artist agent. Your role is to generate stunning, high-end cinematic visuals that serve as the key aesthetic anchor for the campaign. Prioritize photorealism, perfect lighting, and compositions that feel like professional film stills."
+    }
   });
   
   const [prod, setProd] = useState<ProductionData>({
@@ -158,7 +176,7 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
       }));
       
       setAppState(AppState.IMAGING);
-      const image = await generateArt(enhancedPrompt, ar);
+      const image = await generateArt(enhancedPrompt, ar, config);
       setProd(prev => ({ ...prev, image }));
       setAppState(AppState.MARKETING);
       
@@ -205,36 +223,11 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
   };
 
   const renderSettings = () => (
-    <div className="flex-grow flex flex-col items-center justify-center p-8 max-w-4xl mx-auto w-full animate-in fade-in slide-in-from-bottom-4">
-      <h2 className="text-3xl font-bold mb-8 flex items-center gap-3">
-        <Settings className="text-indigo-400" /> Agent Laboratory
-      </h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 w-full mb-8">
-        {[
-          { key: 'producerPersona', label: 'Producteur', icon: Cpu },
-          { key: 'screenwriterPersona', label: 'Scénariste', icon: Sparkles },
-          { key: 'marketerPersona', label: 'Marketer', icon: Megaphone },
-          { key: 'directorPersona', label: 'Réalisateur', icon: Clapperboard }
-        ].map(agent => (
-          <div key={agent.key} className="bg-[#111] border border-gray-800 p-5 rounded-2xl flex flex-col gap-3 hover:border-indigo-500/30 transition-colors">
-            <div className="flex items-center gap-2 text-indigo-400 font-bold text-[11px] uppercase tracking-wider">
-              <agent.icon size={14} /> {agent.label}
-            </div>
-            <textarea
-              className="bg-black/50 border border-gray-800 rounded-xl p-4 text-[12px] min-h-[140px] focus:border-indigo-500 outline-none text-gray-100 leading-relaxed custom-scrollbar"
-              value={(config as any)[agent.key]}
-              onChange={(e) => setConfig({...config, [agent.key]: e.target.value})}
-            />
-          </div>
-        ))}
-      </div>
-      <button 
-        onClick={() => setAppState(AppState.IDLE)}
-        className="px-12 py-4 bg-white text-black font-bold rounded-full hover:bg-indigo-400 hover:text-white transition-all"
-      >
-        Sauvegarder & Retour
-      </button>
-    </div>
+    <AgentLaboratory 
+      config={config} 
+      onChange={setConfig} 
+      onBack={() => setAppState(AppState.IDLE)} 
+    />
   );
 
   return (
@@ -266,9 +259,9 @@ Style: cinematic, visual, emotionally intelligent, rhythmic, and modern.`
         </div>
         
         <div className="flex items-center gap-4">
-          <button onClick={() => setAppState(AppState.SETTINGS)} className="px-4 py-2 hover:bg-white/5 rounded-xl transition-all border border-white/10 flex items-center gap-2 group">
-            <Settings size={18} className="group-hover:rotate-90 transition-transform duration-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">Configuration Agents</span>
+          <button onClick={() => setAppState(AppState.SETTINGS)} className="px-4 py-2 hover:bg-white/5 rounded-2xl transition-all border border-white/10 flex items-center gap-2 group bg-white/5">
+            <Bot size={18} className="text-indigo-400 group-hover:scale-110 transition-transform" />
+            <span className="text-[10px] font-black uppercase tracking-widest hidden md:block">Agent Laboratory</span>
           </button>
         </div>
       </header>

@@ -49,11 +49,17 @@ export interface GroundingSource {
   uri: string;
 }
 
+export interface AgentSettings {
+  persona: string;
+  model: string;
+}
+
 export interface AgentConfig {
-  producerPersona: string;
-  marketerPersona: string;
-  directorPersona: string;
-  screenwriterPersona: string;
+  producer: AgentSettings;
+  marketer: AgentSettings;
+  director: AgentSettings;
+  screenwriter: AgentSettings;
+  artist: AgentSettings;
 }
 
 export interface ProductionData {
