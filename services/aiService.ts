@@ -146,8 +146,8 @@ export const marketAnalysis = async (
 
   // Simulation of grounding sources for better context
   const sources: GroundingSource[] = [
-    { title: `${platform} Trend Report 2026`, url: `https://business.${platform.toLowerCase()}.com/insights` },
-    { title: "Neuro-Marketing Visual Patterns", url: "https://marketing-science.org/visual-retention" }
+    { title: `${platform} Trend Report 2026`, uri: `https://business.${platform.toLowerCase()}.com/insights` },
+    { title: "Neuro-Marketing Visual Patterns", uri: "https://marketing-science.org/visual-retention" }
   ];
 
   return { copy, sources };

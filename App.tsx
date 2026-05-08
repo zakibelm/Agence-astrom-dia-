@@ -28,7 +28,9 @@ import {
   Volume2,
   Sparkles,
   ArrowRight,
-  Bot
+  Bot,
+  Clapperboard,
+  Megaphone
 } from 'lucide-react';
 
 const App: React.FC = () => {
